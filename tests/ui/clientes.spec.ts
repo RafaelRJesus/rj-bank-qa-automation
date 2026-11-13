@@ -19,6 +19,7 @@ test.describe('Clientes', () => {
     await clientes.enviar()
     await expect(clientes.toast).toContainText('Cliente cadastrado.')
     await expect(clientes.item(c.nome)).toContainText(`CPF ${c.cpf}`)
+    await expect(clientes.item(c.nome)).toContainText(/Nº \d{7}/)
     await expect(clientes.item(c.nome)).toContainText('São Paulo')
     await expect(clientes.campo('Nome')).toHaveValue('')
   })
@@ -77,7 +78,7 @@ test.describe('Clientes', () => {
     await expect(clientes.campo('Logradouro')).toBeEditable()
   })
 
-  test('CLI-08 busca por nome e por CPF @regressao', async ({ clientes }) => {
+  test('CLI-08 busca por nome, CPF e número do cliente @regressao', async ({ clientes }) => {
     // nomes únicos: em produção a carteira do gestor tem outros clientes
     const ana = umCliente()
     const bruno = umCliente()
@@ -93,6 +94,11 @@ test.describe('Clientes', () => {
     await clientes.buscar(bruno.cpf)
     await expect(clientes.lista).toHaveCount(1)
     await expect(clientes.item(bruno.nome)).toBeVisible()
+
+    // número do cliente, como aparece na lista
+    const numero = (await clientes.item(bruno.nome).innerText()).match(/Nº (\d{7})/)![1]
+    await clientes.buscar(numero)
+    await expect(clientes.lista.first()).toContainText(bruno.nome)
 
     await clientes.buscar('ninguém com esse nome')
     await expect(clientes.lista).toHaveCount(0)

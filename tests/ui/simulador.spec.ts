@@ -194,3 +194,35 @@ test.describe('Simulador · produtos', () => {
     expect(await simulador.kpi('Parcela')).toBe(esperado.parcelas[0].valor)
   })
 })
+
+test.describe('Simulador · busca de cliente', () => {
+  test('SIM-17 acha o cliente por nome completo, CPF ou número @regressao', async ({
+    clientes,
+    simulador,
+    page,
+  }) => {
+    const c = umCliente()
+    c.nome = `Joana Álvares ${c.nome}`
+    await clientes.abrir()
+    await clientes.cadastrar(c)
+    const numero = (await clientes.item(c.nome).innerText()).match(/Nº (\d{7})/)![1]
+
+    await simulador.abrir()
+    const sugestoes = page
+      .getByRole('listbox', { name: 'Clientes encontrados' })
+      .getByRole('option')
+    const campo = page.getByRole('combobox', { name: 'Cliente' })
+
+    // nome sem acento e fora de ordem
+    await campo.fill(`alvares joana ${c.nome.split(' ').at(-1)}`.toLowerCase())
+    await expect(sugestoes).toHaveText([new RegExp(c.nome)])
+
+    await campo.fill(c.cpf)
+    await expect(sugestoes).toHaveText([new RegExp(c.nome)])
+
+    await campo.fill(numero)
+    await expect(sugestoes.first()).toContainText(c.nome)
+    await campo.press('Enter')
+    await expect(page.getByTestId('cliente-escolhido')).toContainText(`Nº ${numero}`)
+  })
+})

@@ -114,6 +114,44 @@ test.describe('Contratos', () => {
     await expect(contratos.linhas.filter({ hasText: nome })).toHaveCount(0)
   })
 
+  test('CTR-08 número do contrato: produto + nº do cliente + sequência @regressao', async ({
+    simulador,
+    clientes,
+    page,
+  }) => {
+    await clientes.abrir()
+    const numeroCliente = (await clientes.item(nome).innerText()).match(/Nº (\d{7})/)![1]
+
+    await simulador.abrir()
+    await simulador.cliente(nome)
+    await simulador.parametros({ valor: 2000, taxa: 2, prazo: 3 })
+    await simulador.contratar()
+    await expect(page.locator('.page-header')).toContainText(`101.${numeroCliente}.001`)
+
+    await simulador.abrir()
+    await simulador.produto('Pix parcelado')
+    await simulador.cliente(nome)
+    await simulador.parametros({ valor: 500, taxa: 6.5, prazo: 3 })
+    await simulador.contratar()
+    await expect(page.locator('.page-header')).toContainText(`105.${numeroCliente}.002`)
+  })
+
+  test('CTR-09 pagamento grava a forma escolhida @regressao', async ({
+    simulador,
+    contrato,
+    page,
+  }) => {
+    await simulador.parametros({ valor: 2000, taxa: 2, prazo: 3 })
+    await simulador.contratar()
+    await contrato.iniciarPagamento(1)
+    const formas = page.getByRole('group', { name: 'Forma de pagamento' })
+    await expect(formas.getByRole('radio')).toHaveCount(5)
+    await formas.getByRole('radio', { name: 'Cartão de débito' }).check()
+    await contrato.confirmarPagamento(1)
+    await expect(page.locator('.toast')).toContainText('(Cartão de débito)')
+    await expect(contrato.linhaParcela(1)).toContainText('Cartão de débito')
+  })
+
   test('CTR-07 cliente com contrato não pode ser removido @regressao', async ({
     simulador,
     clientes,

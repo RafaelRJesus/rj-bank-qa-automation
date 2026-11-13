@@ -70,7 +70,7 @@ que está publicado se comporta igual.
 | CLI-05 | Campos obrigatórios                       |
 | CLI-06 | Nome acima de 120 caracteres              |
 | CLI-07 | CEP inexistente libera endereço manual    |
-| CLI-08 | Busca por nome e CPF                      |
+| CLI-08 | Busca por nome, CPF e número do cliente   |
 | CLI-09 | Remoção com confirmação                   |
 | CLI-10 | Dados persistem após recarregar           |
 

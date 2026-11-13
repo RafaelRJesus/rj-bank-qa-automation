@@ -1,0 +1,25 @@
+{
+  "name": "rj-bank-qa-automation",
+  "version": "1.0.0",
+  "description": "Automação de testes do RJ Bank (Playwright + TypeScript)",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:ui": "playwright test --project=ui-desktop --project=ui-mobile",
+    "test:api": "playwright test --project=api",
+    "test:contrato": "playwright test --project=contrato",
+    "test:oraculo": "playwright test --project=oraculo",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^26.6.6",
+    "prettier": "^3.10.1",
+    "typescript": "^7.0.2"
+  },
+  "private": true,
+  "type": "module"
+}

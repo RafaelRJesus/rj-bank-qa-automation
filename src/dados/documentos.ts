@@ -1,9 +1,8 @@
 import { gerarCpf } from './cpf'
 import { cronograma } from '../oraculo/credito'
 
-export function docCliente(uid: string, extra: Record<string, unknown> = {}) {
+export function docCliente(criadoPor: string, extra: Record<string, unknown> = {}) {
   return {
-    uid,
     nome: 'QA Regras',
     email: 'qa.regras@exemplo.com',
     telefone: '(51) 98888-7777',
@@ -16,14 +15,22 @@ export function docCliente(uid: string, extra: Record<string, unknown> = {}) {
       uf: 'SP',
     },
     criadoEm: new Date().toISOString(),
+    criadoPor,
     ...extra,
   }
 }
 
-export function docContrato(uid: string, clienteId: string, extra: Record<string, unknown> = {}) {
+/** Id do cadastro no Firestore: o CPF só com números. */
+export const idDoCpf = (cpf: string) => cpf.replace(/\D/g, '')
+
+export function docContrato(
+  criadoPor: string,
+  clienteId: string,
+  extra: Record<string, unknown> = {},
+) {
   const prazo = 3
   return {
-    uid,
+    criadoPor,
     clienteId,
     clienteNome: 'QA Regras',
     produto: 'pessoal',

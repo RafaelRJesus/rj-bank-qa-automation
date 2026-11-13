@@ -15,22 +15,40 @@ export function paraFirestore(v: unknown): Valor {
 const campos = (obj: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, paraFirestore(v)]))
 
-/** Usuário anônimo real, criado pela mesma API que o app usa. */
-export class UsuarioAnonimo {
+const IDENTITY = 'https://identitytoolkit.googleapis.com/v1/accounts'
+
+/** Conta real do Firebase Auth, usada para bater na API REST como o app faria. */
+export class UsuarioTeste {
   private constructor(
     private readonly request: APIRequestContext,
     readonly uid: string,
+    readonly email: string,
     private readonly token: string,
   ) {}
 
-  static async criar(request: APIRequestContext) {
-    const resp = await request.post(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${env.firebaseApiKey}`,
-      { data: { returnSecureToken: true } },
-    )
-    if (!resp.ok()) throw new Error(`signUp falhou: ${resp.status()} ${await resp.text()}`)
-    const { localId, idToken } = await resp.json()
-    return new UsuarioAnonimo(request, localId, idToken)
+  private static async autenticar(request: APIRequestContext, acao: string, data: object) {
+    const resp = await request.post(`${IDENTITY}:${acao}?key=${env.firebaseApiKey}`, { data })
+    if (!resp.ok()) throw new Error(`${acao} falhou: ${resp.status()} ${await resp.text()}`)
+    const { localId, idToken, email } = await resp.json()
+    return new UsuarioTeste(request, localId, email, idToken)
+  }
+
+  /** Conta nova com e-mail ainda não confirmado (não dá para confirmar sem caixa de entrada). */
+  static criarSemConfirmar(request: APIRequestContext) {
+    const email = `qa.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}@exemplo.com`
+    return UsuarioTeste.autenticar(request, 'signUp', {
+      email,
+      password: `Qa!${Math.random().toString(36).slice(2)}`,
+      returnSecureToken: true,
+    })
+  }
+
+  static entrar(request: APIRequestContext, email: string, senha: string) {
+    return UsuarioTeste.autenticar(request, 'signInWithPassword', {
+      email,
+      password: senha,
+      returnSecureToken: true,
+    })
   }
 
   private get headers() {
@@ -41,8 +59,13 @@ export class UsuarioAnonimo {
     return `https://firestore.googleapis.com/v1/projects/${env.firebaseProjectId}/databases/(default)/documents${caminho}`
   }
 
-  criarDoc(colecao: string, dados: Record<string, unknown>): Promise<APIResponse> {
-    return this.request.post(this.url(`/${colecao}`), {
+  caminho(colecao: string, id: string) {
+    return `projects/${env.firebaseProjectId}/databases/(default)/documents/${colecao}/${id}`
+  }
+
+  criarDoc(colecao: string, dados: Record<string, unknown>, id?: string): Promise<APIResponse> {
+    const query = id ? `?documentId=${encodeURIComponent(id)}` : ''
+    return this.request.post(this.url(`/${colecao}${query}`), {
       headers: this.headers,
       data: { fields: campos(dados) },
     })
@@ -74,32 +97,39 @@ export class UsuarioAnonimo {
     return this.request.get(this.url(`/${colecao}`), { headers: this.headers })
   }
 
-  consultarPorUid(colecao: string, uid: string) {
+  consultar(colecao: string, campo: string, valor: string) {
     return this.request.post(`${this.url()}:runQuery`, {
       headers: this.headers,
       data: {
         structuredQuery: {
           from: [{ collectionId: colecao }],
           where: {
-            fieldFilter: { field: { fieldPath: 'uid' }, op: 'EQUAL', value: { stringValue: uid } },
+            fieldFilter: {
+              field: { fieldPath: campo },
+              op: 'EQUAL',
+              value: { stringValue: valor },
+            },
           },
         },
       },
     })
   }
 
-  /** Apaga os documentos e a própria conta anônima. */
-  async encerrar() {
+  /** Apaga o que esta conta criou (criadoPor = uid). */
+  async limparCriados() {
     for (const colecao of ['contratos', 'clientes']) {
-      const resp = await this.consultarPorUid(colecao, this.uid)
+      const resp = await this.consultar(colecao, 'criadoPor', this.uid)
       if (!resp.ok()) continue
       for (const r of (await resp.json()) as { document?: { name: string } }[]) {
         if (r.document) await this.apagarDoc(r.document.name)
       }
     }
-    await this.request.post(
-      `https://identitytoolkit.googleapis.com/v1/accounts:delete?key=${env.firebaseApiKey}`,
-      { data: { idToken: this.token } },
-    )
+  }
+
+  /** Só para contas descartáveis criadas pelo próprio teste. */
+  excluirConta() {
+    return this.request.post(`${IDENTITY}:delete?key=${env.firebaseApiKey}`, {
+      data: { idToken: this.token },
+    })
   }
 }

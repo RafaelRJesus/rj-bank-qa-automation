@@ -6,7 +6,7 @@ interface Sessao {
   token: string
 }
 
-/** Lê o usuário anônimo que o app criou (o SDK guarda no IndexedDB). */
+/** Lê o usuário logado no app (o SDK do Firebase guarda no IndexedDB). */
 export async function sessaoFirebase(page: Page): Promise<Sessao | null> {
   return page.evaluate(
     () =>
@@ -33,7 +33,10 @@ export async function sessaoFirebase(page: Page): Promise<Sessao | null> {
 const base = () =>
   `https://firestore.googleapis.com/v1/projects/${env.firebaseProjectId}/databases/(default)/documents`
 
-/** Apaga tudo que o usuário anônimo do teste gravou. Sem sessão (modo local), não faz nada. */
+/**
+ * Apaga o que a conta de teste gravou (criadoPor = uid dela). A conta continua:
+ * é a mesma em todas as execuções. Sem sessão do Firebase, não faz nada.
+ */
 export async function limparDadosDoTeste(page: Page) {
   const sessao = await sessaoFirebase(page).catch(() => null)
   if (!sessao || !env.firebaseProjectId) return
@@ -47,7 +50,7 @@ export async function limparDadosDoTeste(page: Page) {
           from: [{ collectionId: colecao }],
           where: {
             fieldFilter: {
-              field: { fieldPath: 'uid' },
+              field: { fieldPath: 'criadoPor' },
               op: 'EQUAL',
               value: { stringValue: sessao.uid },
             },

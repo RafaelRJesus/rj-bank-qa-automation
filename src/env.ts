@@ -8,8 +8,15 @@ if (existsSync('.env')) {
   }
 }
 
+const baseUrl = process.env.BASE_URL || 'https://cliente-app-1a979.web.app'
+
 export const env = {
-  baseUrl: process.env.BASE_URL || 'https://cliente-app-1a979.web.app',
+  baseUrl,
+  // App sem Firebase (build --mode e2e ou sem .env.local): login com o admin de exemplo.
+  appLocal: /localhost|127\.0\.0\.1/.test(baseUrl),
+  // Contas de teste em produção (criadas uma vez, com e-mail confirmado)
+  gestor: { email: process.env.QA_GESTOR_EMAIL || '', senha: process.env.QA_GESTOR_SENHA || '' },
+  cliente: { email: process.env.QA_CLIENTE_EMAIL || '', senha: process.env.QA_CLIENTE_SENHA || '' },
   firebaseApiKey: process.env.FIREBASE_API_KEY || '',
   firebaseProjectId: process.env.FIREBASE_PROJECT_ID || 'cliente-app-1a979',
   apisExternas: (process.env.EXTERNAL_APIS || 'mock') as 'mock' | 'live',

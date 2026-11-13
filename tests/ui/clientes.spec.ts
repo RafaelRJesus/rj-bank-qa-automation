@@ -37,17 +37,18 @@ test.describe('Clientes', () => {
     await clientes.preencher(umCliente({ cpf: CPF_INVALIDO }))
     await clientes.enviar()
     await expect(clientes.erroDo('CPF')).toBeVisible()
-    await expect(clientes.lista).toHaveCount(0)
+    await expect(clientes.toast).toHaveCount(0)
   })
 
   test('CLI-04 não deixa cadastrar o mesmo CPF duas vezes @regressao', async ({ clientes }) => {
     const primeiro = umCliente()
     await clientes.cadastrar(primeiro)
 
-    await clientes.preencher(umCliente({ cpf: primeiro.cpf }))
+    const segundo = umCliente({ cpf: primeiro.cpf })
+    await clientes.preencher(segundo)
     await clientes.enviar()
     await expect(clientes.erroDo('CPF')).toHaveText('CPF já cadastrado.')
-    await expect(clientes.lista).toHaveCount(1)
+    await expect(clientes.item(segundo.nome)).toHaveCount(0)
   })
 
   test('CLI-05 obriga os campos principais @regressao', async ({ clientes }) => {
@@ -77,17 +78,21 @@ test.describe('Clientes', () => {
   })
 
   test('CLI-08 busca por nome e por CPF @regressao', async ({ clientes }) => {
-    const ana = umCliente({ nome: 'Ana Busca' })
-    const bruno = umCliente({ nome: 'Bruno Busca' })
+    // nomes únicos: em produção a carteira do gestor tem outros clientes
+    const ana = umCliente()
+    const bruno = umCliente()
+    ana.nome = `Ana ${ana.nome}`
+    bruno.nome = `Bruno ${bruno.nome}`
     await clientes.cadastrar(ana)
     await clientes.cadastrar(bruno)
 
-    await clientes.buscar('ana busca')
+    await clientes.buscar(ana.nome.toLowerCase())
     await expect(clientes.lista).toHaveCount(1)
-    await expect(clientes.item('Ana Busca')).toBeVisible()
+    await expect(clientes.item(ana.nome)).toBeVisible()
 
-    await clientes.buscar(bruno.cpf.slice(0, 7))
-    await expect(clientes.item('Bruno Busca')).toBeVisible()
+    await clientes.buscar(bruno.cpf)
+    await expect(clientes.lista).toHaveCount(1)
+    await expect(clientes.item(bruno.nome)).toBeVisible()
 
     await clientes.buscar('ninguém com esse nome')
     await expect(clientes.lista).toHaveCount(0)

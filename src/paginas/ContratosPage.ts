@@ -73,7 +73,7 @@ export class ContratoDetalhePage {
 
   async confirmarPagamento(numero: number) {
     await this.page.getByRole('button', { name: 'Confirmar pagamento' }).click()
-    await expect(this.page.locator('.toast')).toContainText(`Parcela ${numero} paga.`)
+    await expect(this.page.locator('.toast')).toContainText(`Parcela ${numero} paga`)
   }
 
   async excluir() {

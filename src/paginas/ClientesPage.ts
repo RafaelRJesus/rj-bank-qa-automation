@@ -51,7 +51,7 @@ export class ClientesPage {
   }
 
   async buscar(termo: string) {
-    await this.page.getByPlaceholder('Buscar por nome ou CPF').fill(termo)
+    await this.page.getByPlaceholder(/^Buscar por nome/).fill(termo)
   }
 
   botaoRemover(nome: string) {

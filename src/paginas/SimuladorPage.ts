@@ -36,10 +36,15 @@ export class SimuladorPage {
     await expect(aba).toHaveAttribute('aria-selected', 'true')
   }
 
-  async cliente(nome: string) {
-    const select = this.page.locator('#clienteId')
-    const valor = await select.locator('option', { hasText: nome }).getAttribute('value')
-    await select.selectOption(valor!)
+  /** Busca pelo nome, CPF ou número e escolhe na lista de sugestões. */
+  async cliente(nome: string, termo = nome) {
+    await this.page.getByRole('combobox', { name: 'Cliente' }).fill(termo)
+    await this.page
+      .getByRole('listbox', { name: 'Clientes encontrados' })
+      .getByRole('option', { name: new RegExp(nome) })
+      .first()
+      .click()
+    await expect(this.page.getByTestId('cliente-escolhido')).toContainText(nome)
   }
 
   async parametros(p: Parametros) {

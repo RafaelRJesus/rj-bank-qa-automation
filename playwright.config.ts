@@ -19,7 +19,7 @@ export default defineConfig({
     timezoneId: 'America/Sao_Paulo',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: env.ci ? 'retain-on-failure' : 'off',
     launchOptions: chrome,
   },
   projects: [

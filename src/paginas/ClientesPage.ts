@@ -16,7 +16,8 @@ export class ClientesPage {
   }
 
   campo(rotulo: string) {
-    return this.page.getByLabel(rotulo, { exact: true })
+    // campos obrigatórios têm um "*" no rótulo
+    return this.page.getByLabel(new RegExp(`^${rotulo}\\*?$`))
   }
 
   erroDo(rotulo: string) {

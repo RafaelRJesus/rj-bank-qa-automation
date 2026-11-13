@@ -92,6 +92,7 @@ que está publicado se comporta igual.
 | SIM-14 | Placa inválida                               |
 | SIM-15 | Imóvel: até 60% do valor, prazo até 240      |
 | SIM-16 | Pix parcelado com IOF financiado             |
+| SIM-17 | Busca do cliente por nome, CPF ou número     |
 
 ### Contratos e visão geral
 
@@ -104,6 +105,8 @@ que está publicado se comporta igual.
 | CTR-05     | Situação "em atraso" e "quitado" no filtro                |
 | CTR-06     | Exclusão de contrato                                      |
 | CTR-07     | Cliente com contrato não pode ser removido                |
+| CTR-08     | Número do contrato: produto + cliente + sequência         |
+| CTR-09     | Forma de pagamento gravada na parcela                     |
 | VG-01      | Carteira vazia                                            |
 | VG-02      | KPIs acompanham cadastro, contrato e atraso               |
 | NAV-01..04 | Menu, rota direta, contrato inexistente, teclado nas abas |

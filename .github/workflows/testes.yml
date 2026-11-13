@@ -1,0 +1,103 @@
+name: testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # todo dia às 06:17 de Brasília, contra o site publicado
+    - cron: '17 9 * * *'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: URL do app
+        default: https://cliente-app-1a979.web.app
+      suite:
+        description: O que rodar
+        type: choice
+        options: [smoke, regressao, tudo]
+        default: smoke
+
+concurrency:
+  group: testes-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  estatico:
+    name: tipos, formatação e oráculo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npx prettier --check .
+      - run: npm run test:oraculo
+
+  ui-local:
+    # Sobe o app a partir do código-fonte, sem Firebase e com APIs simuladas:
+    # resultado só depende do código, não da internet.
+    name: interface (app local, APIs simuladas)
+    needs: estatico
+    if: github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: http://localhost:4173
+      EXTERNAL_APIS: mock
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: RafaelRJesus/cliente-app, path: app }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: build e preview do app
+        working-directory: app
+        run: |
+          npm ci
+          npm run build -- --mode e2e
+          npx vite preview --port 4173 --strictPort &
+          for i in $(seq 30); do curl -sf http://localhost:4173 >/dev/null && exit 0; sleep 2; done; exit 1
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:ui
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: relatorio-ui-local
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  producao:
+    name: produção (${{ inputs.suite || 'regressao' }})
+    needs: estatico
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ inputs.base_url || 'https://cliente-app-1a979.web.app' }}
+      EXTERNAL_APIS: live
+      FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: testes
+        run: |
+          case "${{ inputs.suite || 'regressao' }}" in
+            smoke) npx playwright test --project=ui-desktop --project=ui-mobile --grep @smoke ;;
+            regressao) npx playwright test --project=ui-desktop --project=ui-mobile --project=api --project=contrato ;;
+            tudo) npx playwright test ;;
+          esac
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: relatorio-producao
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

@@ -59,13 +59,15 @@ um secret.
 
 ## Variáveis
 
-| Variável              | Padrão         | Para quê                                         |
-| --------------------- | -------------- | ------------------------------------------------ |
-| `BASE_URL`            | site publicado | URL do app                                       |
-| `EXTERNAL_APIS`       | `mock`         | `mock` simula CEP/FIPE/BCB; `live` usa as reais  |
-| `FIREBASE_API_KEY`    |                | suíte de segurança e limpeza das contas anônimas |
-| `FIREBASE_PROJECT_ID` |                | idem                                             |
-| `CHROME_PATH`         |                | usar um Chrome já instalado em vez do baixado    |
+| Variável                                | Padrão              | Para quê                                                    |
+| --------------------------------------- | ------------------- | ----------------------------------------------------------- |
+| `BASE_URL`                              | site publicado      | URL do app; `localhost` liga o login com o admin de exemplo |
+| `EXTERNAL_APIS`                         | `mock`              | `mock` simula CEP/FIPE/BCB; `live` usa as reais             |
+| `FIREBASE_API_KEY`                      |                     | suíte de segurança                                          |
+| `FIREBASE_PROJECT_ID`                   | `cliente-app-1a979` | suíte de segurança e limpeza dos dados de teste             |
+| `QA_GESTOR_EMAIL` / `QA_GESTOR_SENHA`   |                     | conta de gestor de teste em produção                        |
+| `QA_CLIENTE_EMAIL` / `QA_CLIENTE_SENHA` |                     | conta de cliente de teste em produção                       |
+| `CHROME_PATH`                           |                     | usar um Chrome já instalado em vez do baixado               |
 
 ## CI
 
@@ -77,7 +79,21 @@ um secret.
 - **manual** (Actions → testes → Run workflow): escolhe URL e suíte.
 
 Para a parte de produção, cadastre em Settings → Secrets and variables → Actions:
-o secret `FIREBASE_API_KEY` e a variável `FIREBASE_PROJECT_ID`.
+os secrets `FIREBASE_API_KEY`, `QA_GESTOR_EMAIL`, `QA_GESTOR_SENHA`,
+`QA_CLIENTE_EMAIL`, `QA_CLIENTE_SENHA` e a variável `FIREBASE_PROJECT_ID`.
+
+### Contas de teste em produção (uma vez)
+
+O app exige login. Use e-mails que você controla (um alias tipo
+`seuemail+qagestor@gmail.com` serve), nunca a conta de admin:
+
+1. Como admin, cadastre o e-mail do gestor de teste na tela **Gestores**.
+2. Crie a conta com esse e-mail, confirme pelo link e ative o acesso.
+3. Crie outra conta para o cliente de teste, confirme e faça o cadastro com um
+   CPF fictício válido.
+
+Sem essas contas, os testes de interface contra produção são pulados (não
+falham) e só rodam os que não precisam de login.
 
 ## Convenções
 

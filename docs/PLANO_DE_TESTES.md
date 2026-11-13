@@ -2,9 +2,9 @@
 
 ## Objetivo
 
-Garantir que o simulador de crédito calcula certo, que os dados de um usuário
-ficam isolados dos outros e que as integrações externas (CEP, FIPE, Banco
-Central) continuam funcionando. Tudo com dados fictícios.
+Garantir que o simulador de crédito calcula certo, que cada papel (admin,
+gestor e cliente) só enxerga o que pode e que as integrações externas (CEP,
+FIPE, Banco Central) continuam funcionando. Tudo com dados fictícios.
 
 ## O que está fora
 
@@ -33,8 +33,20 @@ mostra onde. O próprio oráculo é testado contra valores calculados à mão.
 para o resultado depender só do código. Para o mock não ficar mentindo, a suíte
 `contrato` confere toda noite se as APIs reais ainda respondem naquele formato.
 
-**Isolamento.** Cada teste abre um contexto novo. Contra o Firestore isso vira
-um usuário anônimo próprio; no fim a fixture apaga os documentos e a conta.
+**Login.** Contra o app local cada teste já começa como o admin de exemplo
+(só existe sem Firebase). Em produção os testes entram com contas de teste
+fixas (`QA_GESTOR_*`, `QA_CLIENTE_*`), com e-mail confirmado uma vez à mão.
+Fluxos que criam contas novas rodam só no app local, porque em produção a
+conta precisaria de uma caixa de e-mail real para ser confirmada.
+
+**Isolamento.** Cada teste abre um contexto novo e usa nomes e CPFs únicos,
+porque em produção o gestor de teste vê a carteira toda. No fim a fixture apaga
+tudo que a conta de teste criou (`criadoPor`).
+
+**Regras em duas camadas.** A matriz completa das regras do Firestore (cada
+papel tentando o que pode e o que não pode) roda no emulador, no repositório
+cliente-app (`npm run test:regras`). Aqui a suíte `@seguranca` confere que o
+que está publicado se comporta igual.
 
 ## Tags
 
@@ -99,21 +111,32 @@ um usuário anônimo próprio; no fim a fixture apaga os documentos e a conta.
 | A11Y-01    | Sem violações graves de estrutura                         |
 | A11Y-02    | Contraste de cores                                        |
 
-### Segurança (Firestore)
+### Acesso
 
-| ID     | Cenário                                     |
-| ------ | ------------------------------------------- |
-| SEG-01 | Dono cria cliente e contrato válidos        |
-| SEG-02 | Sem login não lê nem grava                  |
-| SEG-03 | Outro usuário não lê, altera nem apaga      |
-| SEG-04 | Consulta pelo uid alheio                    |
-| SEG-05 | Criar documento com uid de outro            |
-| SEG-06 | Cliente com campos fora do limite ou extras |
-| SEG-07 | Contrato com valores fora das regras        |
-| SEG-08 | Cliente não é editável                      |
-| SEG-09 | No contrato só o cronograma muda            |
-| SEG-10 | Coleções desconhecidas                      |
-| SEG-11 | Dono apaga os próprios dados                |
+| ID     | Cenário                                                 | Onde      |
+| ------ | ------------------------------------------------------- | --------- |
+| ACE-01 | Rota sem login leva ao login                            | todos     |
+| ACE-02 | Senha errada                                            | todos     |
+| ACE-03 | Validação de e-mail e senha na criação de conta         | todos     |
+| ACE-04 | Esqueci a senha não revela se a conta existe            | todos     |
+| ACE-05 | Menu da equipe e saída                                  | todos     |
+| ACE-10 | Admin cadastra gestor, que entra sem a tela de gestores | app local |
+| ACE-11 | Gestor removido perde o acesso                          | app local |
+| ACE-12 | Cliente vê só os próprios contratos e paga              | app local |
+| ACE-13 | Cliente sem cadastro se cadastra sozinho                | app local |
+| ACE-14 | Não assume o CPF de outra pessoa                        | app local |
+| ACE-20 | Cliente de teste não entra nas telas da equipe          | produção  |
+
+### Segurança (Firestore publicado)
+
+| ID     | Cenário                                                    |
+| ------ | ---------------------------------------------------------- |
+| SEG-01 | Sem login não lê nem grava                                 |
+| SEG-02 | Conta sem e-mail confirmado não faz nada                   |
+| SEG-03 | Gestor vê a carteira; cliente e contrato não são editáveis |
+| SEG-04 | Gestor não cria gestor nem muda o próprio papel            |
+| SEG-05 | Cliente não lê, paga nem apaga contrato alheio             |
+| SEG-06 | Coleções desconhecidas                                     |
 
 ### Contrato das APIs
 
@@ -129,21 +152,21 @@ um usuário anônimo próprio; no fim a fixture apaga os documentos e a conta.
 
 Cada bug corrigido no app ganhou um teste que falharia se ele voltasse.
 
-| Bug                                           | Teste          |
-| --------------------------------------------- | -------------- |
-| Última parcela SAC com centavos sobrando      | SIM-02         |
-| Ano FIPE 32000 aparecendo no lugar de zero km | SIM-13         |
-| Banco Central lento derrubava a referência    | SIM-07, API-05 |
-| Contrato não podia ser excluído               | CTR-06         |
-| Taxa vazia virava 0%                          | SIM-03         |
-| NaN no pagamento sem data                     | CTR-04         |
-| Cliente removido sem confirmação              | CLI-09         |
-| Pix: valor enviado descontava o IOF           | SIM-16         |
-| Layout estourando no celular                  | RESP-01        |
-| Abas sem teclado                              | NAV-04         |
-| Nome longo com erro genérico                  | CLI-06, SEG-06 |
-| Período "Set-2026" exibido como 01/01/2026    | SIM-06, API-06 |
-| Regras aceitando campos sem limite            | SEG-06, SEG-07 |
+| Bug                                           | Teste                  |
+| --------------------------------------------- | ---------------------- |
+| Última parcela SAC com centavos sobrando      | SIM-02                 |
+| Ano FIPE 32000 aparecendo no lugar de zero km | SIM-13                 |
+| Banco Central lento derrubava a referência    | SIM-07, API-05         |
+| Contrato não podia ser excluído               | CTR-06                 |
+| Taxa vazia virava 0%                          | SIM-03                 |
+| NaN no pagamento sem data                     | CTR-04                 |
+| Cliente removido sem confirmação              | CLI-09                 |
+| Pix: valor enviado descontava o IOF           | SIM-16                 |
+| Layout estourando no celular                  | RESP-01                |
+| Abas sem teclado                              | NAV-04                 |
+| Nome longo com erro genérico                  | CLI-06                 |
+| Período "Set-2026" exibido como 01/01/2026    | SIM-06, API-06         |
+| Regras aceitando campos sem limite            | emulador (cliente-app) |
 
 ## Defeitos abertos
 

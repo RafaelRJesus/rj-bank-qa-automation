@@ -80,6 +80,10 @@ jobs:
       EXTERNAL_APIS: live
       FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
       FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+      QA_GESTOR_EMAIL: ${{ secrets.QA_GESTOR_EMAIL }}
+      QA_GESTOR_SENHA: ${{ secrets.QA_GESTOR_SENHA }}
+      QA_CLIENTE_EMAIL: ${{ secrets.QA_CLIENTE_EMAIL }}
+      QA_CLIENTE_SENHA: ${{ secrets.QA_CLIENTE_SENHA }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

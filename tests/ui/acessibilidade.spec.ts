@@ -21,12 +21,23 @@ for (const rota of ROTAS) {
   })
 
   test(`A11Y-02 ${rota} contraste de cores (WCAG 1.4.3) @a11y`, async ({ page }) => {
-    test.fail(
-      true,
-      'BUG-A11Y-01: cinza #8a94a6 e botão #00a868 abaixo de 4.5:1 (ver PLANO_DE_TESTES)',
-    )
+    // BUG-A11Y-01 corrigido na repaginação de 13/11/2026 (nova paleta)
     await page.goto(rota)
     await page.locator('main h1').waitFor()
     expect(await violacoes(page, ['color-contrast'])).toEqual([])
   })
 }
+
+test.describe('Página de entrada (sem login)', () => {
+  test.use({ logado: false })
+
+  test('A11Y-03 página de entrada sem violações graves, contraste incluído @a11y', async ({
+    page,
+  }) => {
+    // sem a animação de entrada: no meio do fade o axe mede contraste de texto semitransparente
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto('/')
+    await page.getByRole('heading', { level: 1 }).waitFor()
+    expect(await violacoes(page)).toEqual([])
+  })
+})

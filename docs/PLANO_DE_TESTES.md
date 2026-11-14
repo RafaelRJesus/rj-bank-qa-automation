@@ -96,23 +96,25 @@ que está publicado se comporta igual.
 
 ### Contratos e visão geral
 
-| ID         | Cenário                                                   |
-| ---------- | --------------------------------------------------------- |
-| CTR-01     | Contratação e detalhe do contrato                         |
-| CTR-02     | Pagamento em atraso: multa 2% + mora 1% a.m.              |
-| CTR-03     | Pagamento em dia sem encargos                             |
-| CTR-04     | Data de pagamento vazia                                   |
-| CTR-05     | Situação "em atraso" e "quitado" no filtro                |
-| CTR-06     | Exclusão de contrato                                      |
-| CTR-07     | Cliente com contrato não pode ser removido                |
-| CTR-08     | Número do contrato: produto + cliente + sequência         |
-| CTR-09     | Forma de pagamento gravada na parcela                     |
-| VG-01      | Carteira vazia                                            |
-| VG-02      | KPIs acompanham cadastro, contrato e atraso               |
-| NAV-01..04 | Menu, rota direta, contrato inexistente, teclado nas abas |
-| RESP-01    | Sem rolagem horizontal no celular                         |
-| A11Y-01    | Sem violações graves de estrutura                         |
-| A11Y-02    | Contraste de cores                                        |
+| ID         | Cenário                                                                                   |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| CTR-01     | Contratação e detalhe do contrato                                                         |
+| CTR-02     | Pagamento em atraso: multa 2% + mora 1% a.m.                                              |
+| CTR-03     | Pagamento em dia sem encargos                                                             |
+| CTR-04     | Data de pagamento vazia                                                                   |
+| CTR-05     | Situação "em atraso" e "quitado" no filtro                                                |
+| CTR-06     | Exclusão de contrato                                                                      |
+| CTR-07     | Cliente com contrato não pode ser removido                                                |
+| CTR-08     | Número do contrato: produto + cliente + sequência                                         |
+| CTR-09     | Forma de pagamento gravada na parcela                                                     |
+| VG-01      | Carteira vazia                                                                            |
+| VG-02      | KPIs acompanham cadastro, contrato e atraso                                               |
+| NAV-01..04 | Menu, rota direta, contrato inexistente, teclado nas abas                                 |
+| INI-01..03 | Página de entrada: links, Pix parcelado do celular contra o oráculo, limites dos produtos |
+| RESP-01    | Sem rolagem horizontal no celular                                                         |
+| A11Y-01    | Sem violações graves de estrutura                                                         |
+| A11Y-02    | Contraste de cores                                                                        |
+| A11Y-03    | Página de entrada sem violações graves                                                    |
 
 ### Acesso
 
@@ -166,6 +168,7 @@ Cada bug corrigido no app ganhou um teste que falharia se ele voltasse.
 | Cliente removido sem confirmação              | CLI-09                 |
 | Pix: valor enviado descontava o IOF           | SIM-16                 |
 | Layout estourando no celular                  | RESP-01                |
+| Contraste abaixo de 4.5:1 (BUG-A11Y-01)       | A11Y-02, A11Y-03       |
 | Abas sem teclado                              | NAV-04                 |
 | Nome longo com erro genérico                  | CLI-06                 |
 | Período "Set-2026" exibido como 01/01/2026    | SIM-06, API-06         |
@@ -173,19 +176,12 @@ Cada bug corrigido no app ganhou um teste que falharia se ele voltasse.
 
 ## Defeitos abertos
 
-### BUG-A11Y-01 · contraste abaixo do mínimo WCAG (sério)
+### BUG-A11Y-01 · contraste abaixo do mínimo WCAG · corrigido
 
-O axe encontrou texto com contraste menor que 4.5:1 em todas as telas:
-
-- cinza `#8a94a6` (rótulos dos KPIs, `dt`, cabeçalho das tabelas, textos
-  `.muted` e `.empty`): 3.05:1 no branco, 2.8:1 no `#f3f5f9`;
-- texto branco no botão `#00a868`: 3.08:1;
-- link verde `#008a55`: 4.4:1.
-
-Sugestão (contrastes conferidos): cinza `#5f6b7d` (5.4:1 no branco, 4.87:1 no
-fundo da aba ativa), botão `#00804f` (5.0:1) e link `#007a4c` (5.4:1). O teste A11Y-02 está marcado como falha esperada; quando o app for
-corrigido ele passa a acusar "passou inesperadamente", e é só remover o
-`test.fail`.
+Encontrado pelo axe em 13/11/2026 (cinza `#8a94a6` e botão `#00a868` abaixo
+de 4.5:1). Corrigido na repaginação visual do mesmo dia: a nova paleta passa
+no WCAG AA. O A11Y-02 deixou de ser falha esperada e agora protege contra a
+volta do problema; o A11Y-03 cobre a página de entrada.
 
 ## Riscos conhecidos
 

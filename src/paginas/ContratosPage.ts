@@ -76,6 +76,18 @@ export class ContratoDetalhePage {
     await expect(this.page.locator('.toast')).toContainText(`Parcela ${numero} paga`)
   }
 
+  barraDeVida() {
+    return this.page.getByRole('progressbar', { name: 'Parcelas pagas' })
+  }
+
+  conquistasLiberadas() {
+    return this.page.getByRole('list', { name: 'Conquistas' }).locator('li.liberada strong')
+  }
+
+  avisoConquista() {
+    return this.page.locator('.conquista-nova')
+  }
+
   async excluir() {
     await this.page.getByRole('button', { name: 'Excluir contrato' }).click()
     await this.page.getByRole('alertdialog').getByRole('button', { name: 'Sim, excluir' }).click()

@@ -1,4 +1,4 @@
-# Plano de testes · RJ Bank
+# Plano de testes do Respawn
 
 ## Objetivo
 
@@ -96,25 +96,26 @@ que está publicado se comporta igual.
 
 ### Contratos e visão geral
 
-| ID         | Cenário                                                                                   |
-| ---------- | ----------------------------------------------------------------------------------------- |
-| CTR-01     | Contratação e detalhe do contrato                                                         |
-| CTR-02     | Pagamento em atraso: multa 2% + mora 1% a.m.                                              |
-| CTR-03     | Pagamento em dia sem encargos                                                             |
-| CTR-04     | Data de pagamento vazia                                                                   |
-| CTR-05     | Situação "em atraso" e "quitado" no filtro                                                |
-| CTR-06     | Exclusão de contrato                                                                      |
-| CTR-07     | Cliente com contrato não pode ser removido                                                |
-| CTR-08     | Número do contrato: produto + cliente + sequência                                         |
-| CTR-09     | Forma de pagamento gravada na parcela                                                     |
-| VG-01      | Carteira vazia                                                                            |
-| VG-02      | KPIs acompanham cadastro, contrato e atraso                                               |
-| NAV-01..04 | Menu, rota direta, contrato inexistente, teclado nas abas                                 |
-| INI-01..03 | Página de entrada: links, Pix parcelado do celular contra o oráculo, limites dos produtos |
-| RESP-01    | Sem rolagem horizontal no celular                                                         |
-| A11Y-01    | Sem violações graves de estrutura                                                         |
-| A11Y-02    | Contraste de cores                                                                        |
-| A11Y-03    | Página de entrada sem violações graves                                                    |
+| ID         | Cenário                                                                                               |
+| ---------- | ----------------------------------------------------------------------------------------------------- |
+| CTR-01     | Contratação e detalhe do contrato                                                                     |
+| CTR-02     | Pagamento em atraso: multa 2% + mora 1% a.m.                                                          |
+| CTR-03     | Pagamento em dia sem encargos                                                                         |
+| CTR-04     | Data de pagamento vazia                                                                               |
+| CTR-05     | Situação "em atraso" e "quitado" no filtro                                                            |
+| CTR-06     | Exclusão de contrato                                                                                  |
+| CTR-07     | Cliente com contrato não pode ser removido                                                            |
+| CTR-08     | Número do contrato: produto + cliente + sequência                                                     |
+| CTR-09     | Forma de pagamento gravada na parcela                                                                 |
+| CTR-10     | Barra de vida e conquistas (Primeira parcela, Metade do caminho, Contrato zerado)                     |
+| VG-01      | Carteira vazia                                                                                        |
+| VG-02      | KPIs acompanham cadastro, contrato e atraso                                                           |
+| NAV-01..04 | Menu, rota direta, contrato inexistente, teclado nas abas                                             |
+| INI-01..04 | Página de entrada: links, Pix parcelado contra o oráculo, limites dos produtos, demo da barra de vida |
+| RESP-01    | Sem rolagem horizontal no celular                                                                     |
+| A11Y-01    | Sem violações graves de estrutura                                                                     |
+| A11Y-02    | Contraste de cores                                                                                    |
+| A11Y-03    | Página de entrada sem violações graves                                                                |
 
 ### Acesso
 

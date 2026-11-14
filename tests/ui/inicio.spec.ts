@@ -10,7 +10,7 @@ test.describe('Página de entrada', () => {
   }) => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'Crédito que você entende antes de contratar.',
+      'Crédito pra recomeçar, com o mapa aberto.',
     )
     await page.getByRole('link', { name: 'Abrir conta' }).first().click()
     await expect(page).toHaveURL(/\/criar-conta$/)
@@ -47,5 +47,29 @@ test.describe('Página de entrada', () => {
     await expect(linha('Garantia de imóvel')).toContainText('até 240 meses')
     await expect(linha('Pix parcelado')).toContainText('R$ 50 a R$ 10.000')
     await expect(linha('Consignado')).toContainText('até 84 meses')
+  })
+
+  test('INI-04 demonstração da barra de vida libera as conquistas @regressao', async ({ page }) => {
+    await page.goto('/')
+    const barra = page.getByRole('progressbar', { name: 'Exemplo de contrato em 24 parcelas' })
+    const pagar = page.getByRole('button', { name: 'Pagar uma parcela' })
+    const liberadas = page
+      .getByRole('list', { name: 'Conquistas do exemplo' })
+      .locator('li.liberada strong')
+
+    await expect(barra).toHaveAttribute('aria-valuenow', '3')
+    await expect(liberadas).toHaveText(['Primeira parcela'])
+
+    for (let i = 0; i < 9; i++) await pagar.click()
+    await expect(barra).toHaveAttribute('aria-valuenow', '12')
+    await expect(page.getByRole('status').filter({ hasText: 'Conquista' })).toHaveText(
+      'Conquista desbloqueada: Metade do caminho.',
+    )
+
+    for (let i = 0; i < 12; i++) await pagar.click()
+    await expect(liberadas).toHaveText(['Primeira parcela', 'Metade do caminho', 'Contrato zerado'])
+    await page.getByRole('button', { name: 'Recomeçar' }).click()
+    await expect(barra).toHaveAttribute('aria-valuenow', '0')
+    await expect(liberadas).toHaveCount(0)
   })
 })

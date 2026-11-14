@@ -1,6 +1,6 @@
-# RJ Bank · automação de testes
+# Respawn: automação de testes
 
-Testes automatizados do [RJ Bank](https://github.com/RafaelRJesus/cliente-app),
+Testes automatizados do [Respawn](https://github.com/RafaelRJesus/cliente-app),
 um simulador de crédito pessoal feito para estudo. Playwright + TypeScript.
 
 Site testado: https://cliente-app-1a979.web.app

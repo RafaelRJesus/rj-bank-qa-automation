@@ -152,6 +152,26 @@ test.describe('Contratos', () => {
     await expect(contrato.linhaParcela(1)).toContainText('Cartão de débito')
   })
 
+  test('CTR-10 barra de vida enche e libera as conquistas na ordem @regressao', async ({
+    simulador,
+    contrato,
+  }) => {
+    await simulador.parametros({ valor: 1500, taxa: 2, prazo: 3 })
+    await simulador.contratar()
+    await expect(contrato.barraDeVida()).toHaveAttribute('aria-valuenow', '0')
+    await expect(contrato.conquistasLiberadas()).toHaveCount(0)
+
+    // prazo 3: metade arredonda para cima, então sai na 2ª parcela
+    const esperado = ['Primeira parcela', 'Metade do caminho', 'Contrato zerado']
+    for (const [i, nome] of esperado.entries()) {
+      await contrato.iniciarPagamento(i + 1)
+      await contrato.confirmarPagamento(i + 1)
+      await expect(contrato.barraDeVida()).toHaveAttribute('aria-valuenow', String(i + 1))
+      await expect(contrato.avisoConquista()).toContainText(`Conquista desbloqueada: ${nome}`)
+      await expect(contrato.conquistasLiberadas()).toHaveText(esperado.slice(0, i + 1))
+    }
+  })
+
   test('CTR-07 cliente com contrato não pode ser removido @regressao', async ({
     simulador,
     clientes,

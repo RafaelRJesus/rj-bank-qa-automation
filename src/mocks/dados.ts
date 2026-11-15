@@ -8,7 +8,7 @@ export const CEP_SE = {
   state: 'SP',
 }
 
-export const CEP_INEXISTENTE = '99999999'
+export const CEP_INEXISTENTE = '00000000'
 
 export const FIPE = {
   marcas: [

@@ -19,7 +19,8 @@ test.describe('Contrato das APIs externas @contrato', () => {
   })
 
   test('API-02 BrasilAPI responde 404 para CEP inexistente', async ({ request }) => {
-    const r = await request.get('https://brasilapi.com.br/api/cep/v2/99999999')
+    // 99999999 não serve: uma das bases da BrasilAPI (open-cep) devolve um endereço pra ele
+    const r = await request.get('https://brasilapi.com.br/api/cep/v2/00000000')
     expect(r.status()).toBe(404)
   })
 
@@ -32,7 +33,7 @@ test.describe('Contrato das APIs externas @contrato', () => {
       localidade: 'São Paulo',
       uf: 'SP',
     })
-    const inexistente = await (await request.get('https://viacep.com.br/ws/99999999/json/')).json()
+    const inexistente = await (await request.get('https://viacep.com.br/ws/00000000/json/')).json()
     expect(inexistente).toMatchObject({ erro: expect.anything() })
   })
 

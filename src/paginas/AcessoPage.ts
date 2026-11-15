@@ -13,7 +13,7 @@ export class AcessoPage {
     await this.page.goto('/entrar')
     await this.campo('E-mail').fill(email)
     await this.campo('Senha').fill(senha)
-    await this.page.getByRole('button', { name: 'Entrar' }).click()
+    await this.page.getByRole('button', { name: 'Entrar', exact: true }).click()
   }
 
   async entrarComSucesso(email: string, senha: string) {

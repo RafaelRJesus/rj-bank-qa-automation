@@ -38,7 +38,7 @@ export const test = base.extend<Paginas & Opcoes>({
       // O admin de exemplo do modo local tem uid fixo; basta abrir a sessão.
       await page.addInitScript(() => {
         if (!sessionStorage.getItem('qa-sessao')) {
-          localStorage.setItem('rjbank:sessao', 'admin-local')
+          localStorage.setItem('respawn:sessao', 'admin-local')
           sessionStorage.setItem('qa-sessao', '1')
         }
       })

@@ -1,7 +1,7 @@
 {
   "name": "rj-bank-qa-automation",
   "version": "1.0.0",
-  "description": "Automação de testes do RJ Bank (Playwright + TypeScript)",
+  "description": "Automação de testes do Respawn (Playwright + TypeScript)",
   "scripts": {
     "test": "playwright test",
     "test:smoke": "playwright test --grep @smoke",

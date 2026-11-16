@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test'
 
-export const ADMIN_LOCAL = { email: 'admin@rjbank.test', senha: 'admin123' }
+export const ADMIN_LOCAL = { email: 'admin@respawn.test', senha: 'admin123' }
 
 export class AcessoPage {
   constructor(private readonly page: Page) {}

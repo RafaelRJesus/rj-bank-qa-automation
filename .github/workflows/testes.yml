@@ -27,8 +27,8 @@ jobs:
     name: tipos, formatação e oráculo
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm run typecheck
@@ -46,10 +46,10 @@ jobs:
       BASE_URL: http://localhost:4173
       EXTERNAL_APIS: mock
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
         with: { repository: RafaelRJesus/cliente-app, path: app }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - name: build e preview do app
@@ -85,8 +85,8 @@ jobs:
       QA_CLIENTE_EMAIL: ${{ secrets.QA_CLIENTE_EMAIL }}
       QA_CLIENTE_SENHA: ${{ secrets.QA_CLIENTE_SENHA }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps chromium
